@@ -1,0 +1,22 @@
+{
+  "name": "Royal Puzzle - Match 3",
+  "short_name": "RoyalPuzzle",
+  "description": "Combine joias e construa seu império real!",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#2C0E37",
+  "theme_color": "#FFD700",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "assets/castle.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/castle.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

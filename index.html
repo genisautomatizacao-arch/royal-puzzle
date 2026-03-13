@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Royal Puzzle - O Jogo do Castelo</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#FFD700">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app">
+        <div class="orientation-warning">
+            <div class="icon">📱</div>
+            <h2>Por favor, gire seu celular</h2>
+            <p>Este jogo foi desenhado para o modo retrato.</p>
+        </div>
+        <!-- Dashboard / Menu -->
+        <section id="menu-screen" class="screen active">
+            <div class="royal-overlay"></div>
+                <div class="user-info">
+                    <div class="lives-counter"><span class="icon">❤️</span><span class="count">5</span></div>
+                    <div class="coin-display"><span class="icon">🪙</span><span id="coin-count-map">500</span></div>
+                </div>
+                <h1 class="royal-title">Royal Puzzle</h1>
+                <p class="royal-subtitle">Construa seu império combinando joias!</p>
+                <div class="castle-preview">
+                    <!-- A beautiful generated image can go here -->
+                     <img id="castle-main" src="assets/castle.png" alt="O Castelo">
+                </div>
+                <button id="play-btn" class="glass-btn primary">
+                    <span class="icon">✨</span> JOGAR AGORA
+                </button>
+            </div>
+        </section>
+
+        <!-- Saga Map Screen -->
+        <section id="map-screen" class="screen">
+            <header class="map-header">
+                <div id="lives-display-map" class="lives-counter">❤️ <span class="count">5</span></div>
+                <h2 class="map-title-text">Caminho Real</h2>
+                <div class="spacer"></div>
+            </header>
+            <div id="map-container" class="map-scroll">
+                <div class="map-path"></div>
+                <!-- Levels will be injected here -->
+                 <div class="level-node active" data-level="1">
+                    <span>1</span>
+                    <div class="level-stars"><span class="s1">⭐</span><span class="s2">⭐</span><span class="s3">⭐</span></div>
+                 </div>
+                 <div class="level-node locked" data-level="2">
+                    <span>2</span>
+                    <div class="level-stars"><span class="s1">⭐</span><span class="s2">⭐</span><span class="s3">⭐</span></div>
+                 </div>
+                 <div class="level-node locked" data-level="3">
+                    <span>3</span>
+                    <div class="level-stars"><span class="s1">⭐</span><span class="s2">⭐</span><span class="s3">⭐</span></div>
+                 </div>
+                 <div class="level-node locked" data-level="4">
+                    <span>4</span>
+                    <div class="level-stars"><span class="s1">⭐</span><span class="s2">⭐</span><span class="s3">⭐</span></div>
+                 </div>
+                 <div class="level-node locked" data-level="5">
+                    <span>5</span>
+                    <div class="level-stars"><span class="s1">⭐</span><span class="s2">⭐</span><span class="s3">⭐</span></div>
+                 </div>
+            </div>
+            <button id="back-to-menu-from-map" class="glass-btn secondary">VOLTAR</button>
+        </section>
+
+        <!-- Game Screen -->
+        <section id="game-screen" class="screen">
+            <header class="game-header">
+                <div class="user-info">
+                    <button id="back-to-menu" class="btn-icon">🏰</button>
+                    <div class="lives-counter"><span class="icon">❤️</span><span class="count">5</span></div>
+                    <div class="coin-display"><span class="icon">🪙</span><span id="coin-count-game">500</span></div>
+                </div>
+                <div class="hud-center">
+                    <div id="objective-text" class="objective-display"></div>
+                    <div class="star-progress-wrapper">
+                        <div class="star-markers">
+                            <span class="marker m1">⭐</span>
+                            <span class="marker m2">⭐</span>
+                            <span class="marker m3">⭐</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div id="star-fill" class="progress-bar-fill"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="stats">
+                    <div class="stat-item">Pontos: <span id="score">0</span></div>
+                    <div class="stat-item">Movimentos: <span id="moves">25</span></div>
+                </div>
+            </header>
+
+            <div class="game-container">
+                <div id="grid-container">
+                    <!-- Cells will be generated by JS -->
+                </div>
+            </div>
+
+            <footer class="game-footer">
+                <div class="objective">
+                    <span class="obj-icon">👑</span>
+                    <span id="objective-display-footer">Colete 20 Coroas</span>
+                </div>
+                <div class="booster-tray">
+                    <button id="booster-hammer" class="booster-btn" title="Martelo Real">
+                        <span class="icon">🔨</span>
+                        <span class="count" id="count-hammer">3</span>
+                    </button>
+                    <button id="booster-moves" class="booster-btn" title="+5 Movimentos">
+                        <span class="icon">➕5</span>
+                        <span class="count" id="count-moves">2</span>
+                    </button>
+                </div>
+            </footer>
+
+            <!-- Result Modal -->
+            <div id="result-modal" class="modal-overlay">
+                <div class="modal-content">
+                    <h2 id="modal-title">VITÓRIA!</h2>
+                    <div id="modal-stars" class="modal-stars">
+                        <span>⭐</span><span>⭐</span><span>⭐</span>
+                    </div>
+                    <div class="modal-stats">
+                        <div class="modal-stat">Pontuação: <span id="modal-score">0</span></div>
+                        <div class="modal-stat">Nível: <span id="modal-level">1</span></div>
+                    </div>
+                    <button id="modal-btn" class="glass-btn primary">CONTINUAR</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Store Modal -->
+        <div id="store-modal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="royal-header-modal">
+                    <h2>LOJA REAL</h2>
+                    <button id="close-store" class="close-btn">&times;</button>
+                </div>
+                <div class="store-items">
+                    <div class="store-item">
+                        <span class="icon">🔨</span>
+                        <div class="info">
+                            <span class="name">Martelo Real</span>
+                            <span class="price">🪙 100</span>
+                        </div>
+                        <button class="buy-btn" data-type="hammer" data-price="100">COMPRAR</button>
+                    </div>
+                    <div class="store-item">
+                        <span class="icon">➕5</span>
+                        <div class="info">
+                            <span class="name">Movimentos+</span>
+                            <span class="price">🪙 150</span>
+                        </div>
+                        <button class="buy-btn" data-type="moves" data-price="150">COMPRAR</button>
+                    </div>
+                    <div class="store-item">
+                        <span class="icon">❤️</span>
+                        <div class="info">
+                            <span class="name">Vida Extra</span>
+                            <span class="price">🪙 200</span>
+                        </div>
+                        <button class="buy-btn" data-type="life" data-price="200">COMPRAR</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- GRID ENGINE ---
+        class Grid {
+            constructor(rows, cols, containerId) {
+                this.rows = rows;
+                this.cols = cols;
+                this.container = document.getElementById(containerId);
+                this.board = [];
+                this.types = ['👑', '💎', '🛡️', '🧪', '💰']; 
+                this.selectedCell = null;
+                this.isAnimating = false;
+                this.hintTimeout = null;
+                this.hintPieces = [];
+                this.isHammerMode = false;
+                this.touchStartX = 0;
+                this.touchStartY = 0;
+                
+                if (!this.container) return;
+                
+                // Touch/Swipe Logic
+                this.container.addEventListener('touchstart', (e) => {
+                    this.touchStartX = e.touches[0].clientX;
+                    this.touchStartY = e.touches[0].clientY;
+                }, { passive: true });
+
+                this.container.addEventListener('touchend', (e) => {
+                    const endX = e.changedTouches[0].clientX;
+                    const endY = e.changedTouches[0].clientY;
+                    this.handleSwipe(this.touchStartX, this.touchStartY, endX, endY, e.target);
+                }, { passive: false });
+
+                this.container.onclick = (e) => {
+                    this.clearHint();
+                    this.resetHintTimer();
+                    const cell = e.target.closest('.cell');
+                    if (!cell) return;
+                    const r = parseInt(cell.dataset.row);
+                    const c = parseInt(cell.dataset.col);
+                    
+                    if (this.isHammerMode) {
+                        this.triggerHammer(r, c);
+                    } else {
+                        this.handleCellClick(r, c);
+                    }
+                };
+                
+                this.init();
+                this.resetHintTimer();
+                this.setupBoosters();
+                
+                // --- KING'S GIFT (STREAK REWARDS) ---
+                if (economyManager.winStreak > 0) {
+                    setTimeout(() => {
+                        const streak = economyManager.winStreak;
+                        const gifts = [];
+                        if (streak >= 1) gifts.push('🚀');
+                        if (streak >= 2) gifts.push('💣');
+                        if (streak >= 3) gifts.push('🪩');
+                        
+                        gifts.forEach(type => {
+                            let r, c;
+                            do {
+                                r = Math.floor(Math.random() * this.rows);
+                                c = Math.floor(Math.random() * this.cols);
+                            } while (this.board[r][c].obstacle || this.board[r][c].specialType || this.board[r][c].type === '🚀' || this.board[r][c].type === '💣' || this.board[r][c].type === '🪩');
+                            
+                            const b = this.board[r][c];
+                            b.type = type;
+                            b.piece.textContent = type;
+                            b.piece.classList.add('special');
+                            if (type === '🪩') b.piece.classList.add('disco');
+                            b.piece.style.transform = 'scale(0)';
+                            setTimeout(() => b.piece.style.transform = 'scale(1.2)', 500);
+                        });
+                        this.shake(10, 500);
+                        this.log(`King's Gift: ${gifts.join(', ')} added!`);
+                    }, 800);
+                }
+            }
+
+            handleSwipe(x1, y1, x2, y2, target) {
+                const cell = target.closest('.cell');
+                if (!cell || this.isAnimating || this.isHammerMode) return;
+                
+                const r = parseInt(cell.dataset.row);
+                const c = parseInt(cell.dataset.col);
+                
+                const dx = x2 - x1;
+                const dy = y2 - y1;
+                const absDx = Math.abs(dx);
+                const absDy = Math.abs(dy);
+                
+                if (Math.max(absDx, absDy) < 30) return; // Ignore small taps
+
+                let r2 = r, c2 = c;
+                if (absDx > absDy) {
+                    c2 = dx > 0 ? c + 1 : c - 1;
+                } else {
+                    r2 = dy > 0 ? r + 1 : r - 1;
+                }
+
+                if (r2 >= 0 && r2 < this.rows && c2 >= 0 && c2 < this.cols) {
+                    this.swap(r, c, r2, c2);
+                }
+            }
+
+            setupBoosters() {
+                const hammerBtn = document.getElementById('booster-hammer');
+                const movesBtn = document.getElementById('booster-moves');
+                
+                if (hammerBtn) hammerBtn.onclick = () => this.toggleHammerMode();
+                if (movesBtn) movesBtn.onclick = () => this.useExtraMoves();
+            }
+
+            toggleHammerMode() {
+                if (parseInt(document.getElementById('count-hammer').textContent) <= 0) return;
+                this.isHammerMode = !this.isHammerMode;
+                document.getElementById('booster-hammer').classList.toggle('active', this.isHammerMode);
+            }
+
+            triggerHammer(r, c) {
+                if (this.isAnimating) return;
+                this.isHammerMode = false;
+                document.getElementById('booster-hammer').classList.remove('active');
+                
+                // Decrement count
+                const countEl = document.getElementById('count-hammer');
+                countEl.textContent = parseInt(countEl.textContent) - 1;
+
+                this.isAnimating = true;
+                const b = this.board[r][c];
+                b.element.classList.add('hammer-anim');
+                
+                setTimeout(() => {
+                    b.element.classList.remove('hammer-anim');
+                    this.removeMatches([{r, c}]);
+                    setTimeout(() => {
+                        this.refill();
+                        this.isAnimating = false;
+                    }, 500);
+                }, 300);
+            }
+
+            useExtraMoves() {
+                const countEl = document.getElementById('count-moves');
+                let count = parseInt(countEl.textContent);
+                if (count <= 0) return;
+                
+                countEl.textContent = count - 1;
+                remainingMoves += 5;
+                updateUI();
+                
+                // Visual feedback
+                const movesDisplay = document.getElementById('moves');
+                movesDisplay.style.color = '#00E676';
+                movesDisplay.style.transform = 'scale(1.5)';
+                setTimeout(() => {
+                    movesDisplay.style.color = '';
+                    movesDisplay.style.transform = '';
+                }, 500);
+            }
+
+            shake(intensity = 5, duration = 300) {
+                this.container.style.setProperty('--shake-intensity', `${intensity}px`);
+                this.container.classList.add('shake');
+                setTimeout(() => this.container.classList.remove('shake'), duration);
+            }
+
+            createFloatingText(r, c, text) {
+                const b = this.board[r][c];
+                const ft = document.createElement('div');
+                ft.className = 'floating-text';
+                ft.textContent = `+${text}`;
+                b.element.appendChild(ft);
+                setTimeout(() => ft.remove(), 1000);
+            }
+
+            resetHintTimer() {
+                clearTimeout(this.hintTimeout);
+                this.hintTimeout = setTimeout(() => this.showHint(), 5000);
+            }
+
+            clearHint() {
+                this.hintPieces.forEach(p => p.classList.remove('hint-piece'));
+                this.hintPieces = [];
+            }
+
+            showHint() {
+                if (this.isAnimating) return;
+                const move = this.findPossibleMove();
+                if (move) {
+                    const b1 = this.board[move.r1][move.c1];
+                    const b2 = this.board[move.r2][move.c2];
+                    b1.piece.classList.add('hint-piece');
+                    b2.piece.classList.add('hint-piece');
+                    this.hintPieces = [b1.piece, b2.piece];
+                }
+            }
+
+            findPossibleMove() {
+                for (let r = 0; r < this.rows; r++) {
+                    for (let c = 0; c < this.cols; c++) {
+                        // Check horizontal swap
+                        if (c < this.cols - 1) {
+                            if (this.testSwap(r, c, r, c + 1)) return { r1: r, c1: c, r2: r, c2: c + 1 };
+                        }
+                        // Check vertical swap
+                        if (r < this.rows - 1) {
+                            if (this.testSwap(r, c, r + 1, c)) return { r1: r, c1: c, r2: r + 1, c2: c };
+                        }
+                    }
+                }
+                return null;
+            }
+
+            testSwap(r1, c1, r2, c2) {
+                const t1 = this.board[r1][c1].type;
+                const t2 = this.board[r2][c2].type;
+                if (!t1 || !t2 || t1 === t2) return false;
+                
+                // Temp swap
+                this.board[r1][c1].type = t2;
+                this.board[r2][c2].type = t1;
+                const hasMatch = this.findMatches().length > 0;
+                // Revert
+                this.board[r1][c1].type = t1;
+                this.board[r2][c2].type = t2;
+                
+                return hasMatch;
+            }
+
+            log(msg) {
+                console.log(msg);
+            }
+
+            init() {
+                this.log('Initializing Grid...');
+                const config = levels[currentLevel] || levels[1];
+                const layout = config.layout || [];
+                
+                this.board = [];
+                this.container.innerHTML = '';
+                this.isAnimating = false;
+                this.selectedCell = null;
+                
+                for (let r = 0; r < this.rows; r++) {
+                    this.board[r] = [];
+                    for (let c = 0; c < this.cols; c++) {
+                        const cellType = layout[r] ? layout[r][c] : '.';
+                        const type = cellType === 'C' ? '👑' : this.getRandomType(r, c);
+                        
+                        const cellEl = document.createElement('div');
+                        cellEl.className = 'cell';
+                        cellEl.dataset.row = r;
+                        cellEl.dataset.col = c;
+                        
+                        const pieceEl = document.createElement('div');
+                        pieceEl.className = 'piece';
+                        pieceEl.textContent = (cellType === 'W' || cellType === 'V') ? '' : type;
+                        if (cellType === 'C') pieceEl.classList.add('collectible');
+                        
+                        cellEl.appendChild(pieceEl);
+                        this.container.appendChild(cellEl);
+                        
+                        let ice = cellType === 'I' ? 1 : 0;
+                        if (ice > 0) cellEl.classList.add('frozen');
+                        
+                        let obstacle = null;
+                        let hits = 0;
+                        if (cellType === 'W') {
+                            obstacle = 'wood';
+                            cellEl.classList.add('obstacle-wood');
+                            pieceEl.textContent = '📦';
+                        } else if (cellType === 'V') {
+                            obstacle = 'vase';
+                            cellEl.classList.add('obstacle-vase');
+                            pieceEl.textContent = '🏺';
+                            hits = 2;
+                        }
+
+                        this.board[r][c] = { 
+                            type: (obstacle || cellType === 'C') ? null : type, 
+                            specialType: cellType === 'C' ? 'crown' : null,
+                            element: cellEl, 
+                            piece: pieceEl, 
+                            ice, 
+                            obstacle,
+                            hits
+                        };
+                    }
+                }
+            }
+
+            getRandomType(r, c) {
+                let type;
+                let attempts = 0;
+                do {
+                    type = this.types[Math.floor(Math.random() * this.types.length)];
+                    attempts++;
+                } while (attempts < 10 && (
+                    (c > 1 && this.board[r][c-1]?.type === type && this.board[r][c-2]?.type === type) ||
+                    (r > 1 && this.board[r-1][c]?.type === type && this.board[r-2][c]?.type === type)
+                ));
+                return type;
+            }
+
+            handleCellClick(r, c) {
+                if (this.isAnimating) return;
+                this.log(`Click: ${r},${c}`);
+                const cell = this.board[r][c];
+                
+                if (!this.selectedCell) {
+                    // Direct trigger if clicking a lone power-up (optional, kept for responsiveness)
+                    // But in Royal Match, you usually swap or double-tap.
+                    this.selectedCell = { r, c };
+                    cell.element.classList.add('selected');
+                } else {
+                    const r1 = this.selectedCell.r;
+                    const c1 = this.selectedCell.c;
+                    this.board[r1][c1].element.classList.remove('selected');
+                    
+                    const dr = Math.abs(r1 - r);
+                    const dc = Math.abs(c1 - c);
+                    
+                    if ((dr === 1 && dc === 0) || (dr === 0 && dc === 1)) {
+                        this.swap(r1, c1, r, c);
+                    } else if (r1 === r && c1 === c) {
+                        // Double click on powerup
+                        if (cell.type === '🚀' || cell.type === '💣') this.triggerPowerUp(r, c, cell.type);
+                    }
+                    this.selectedCell = null;
+                }
+            }
+
+            swap(r1, c1, r2, c2) {
+                this.isAnimating = true;
+                this.log(`Swapping [${r1},${c1}] <-> [${r2},${c2}]`);
+                const b1 = this.board[r1][c1];
+                const b2 = this.board[r2][c2];
+                
+                // POWER-UP COMBO CHECK
+                const isP1 = b1.type === '🚀' || b1.type === '💣' || b1.type === '🪩';
+                const isP2 = b2.type === '🚀' || b2.type === '💣' || b2.type === '🪩';
+                
+                if (isP1 && isP2) {
+                    this.triggerCombo(r1, c1, r2, c2, b1.type, b2.type);
+                    return;
+                }
+
+                if (b1.type === '🪩' || b2.type === '🪩') {
+                    const color = b1.type === '🪩' ? b2.type : b1.type;
+                    this.triggerPowerUp(b1.type === '🪩' ? r1 : r2, b1.type === '🪩' ? c1 : c2, '🪩', color);
+                    return;
+                }
+
+                const t = b1.piece.textContent;
+                b1.piece.textContent = b2.piece.textContent;
+                b2.piece.textContent = t;
+                const typeTemp = b1.type;
+                b1.type = b2.type;
+                b2.type = typeTemp;
+                
+                setTimeout(() => {
+                    const matchesFound = this.checkAndResolveMatches();
+                    if (!matchesFound && !isP1 && !isP2) {
+                        this.log('Reverting swap');
+                        const t2 = b1.piece.textContent;
+                        b1.piece.textContent = b2.piece.textContent;
+                        b2.piece.textContent = t2;
+                        const typeTemp2 = b1.type;
+                        b1.type = b2.type;
+                        b2.type = typeTemp2;
+                        this.isAnimating = false;
+                    } else {
+                        // If one was a powerup and no matches, but we swapped it anyway
+                        if (isP1 || isP2) {
+                            if (isP1) this.triggerPowerUp(r2, c2, b2.type);
+                            else if (isP2) this.triggerPowerUp(r1, c1, b1.type);
+                        } else {
+                            this.log('Match confirmed');
+                            window.dispatchEvent(new CustomEvent('match-found'));
+                            this.isAnimating = false;
+                        }
+                    }
+                }, 400);
+            }
+
+            triggerCombo(r1, c1, r2, c2, t1, t2) {
+                this.log(`COMBO TRIGGERED: ${t1} + ${t2}`);
+                this.shake(15, 600);
+                const aff = [];
+                // Mega Cross: 3 rows and 3 columns
+                if ((t1 === '🚀' && t2 === '💣') || (t1 === '💣' && t2 === '🚀')) {
+                    for (let i = -1; i <= 1; i++) {
+                        for (let j = 0; j < this.cols; j++) if (r2+i>=0 && r2+i<this.rows) aff.push({r: r2+i, c: j});
+                        for (let j = 0; j < this.rows; j++) if (c2+i>=0 && c2+i<this.cols) aff.push({r: j, c: c2+i});
+                    }
+                } else if (t1 === '🚀' && t2 === '🚀') {
+                    // Double Rocket: Vertical + Horizontal
+                    for (let i = 0; i < this.cols; i++) aff.push({r: r2, c: i});
+                    for (let i = 0; i < this.rows; i++) aff.push({r: i, c: c2});
+                } else if (t1 === '💣' && t2 === '💣') {
+                    // Double Bomb: Large 5x5 explosion
+                    for (let dr = -2; dr <= 2; dr++) for (let dc = -2; dc <= 2; dc++) {
+                        const nr = r2+dr, nc = c2+dc; if (nr>=0 && nr<this.rows && nc>=0 && nc<this.cols) aff.push({r: nr, c: nc});
+                    }
+                } else if (t1 === '🪩' && t2 === '🪩') {
+                    // DOUBLE DISCO: CLEAR ALL!
+                    for (let r = 0; r < this.rows; r++) for (let c = 0; c < this.cols; c++) aff.push({r, c});
+                } else if (t1 === '🪩' || t2 === '🪩') {
+                    // Disco + Rocket/Bomb: Transform a color into powerups
+                    const other = t1 === '🪩' ? t2 : t1;
+                    const color = this.types[Math.floor(Math.random() * this.types.length)];
+                    for (let r = 0; r < this.rows; r++) {
+                        for (let c = 0; c < this.cols; c++) {
+                            if (this.board[r][c].type === color) {
+                                this.board[r][c].type = other;
+                                this.board[r][c].piece.textContent = other;
+                                aff.push({r, c});
+                            }
+                        }
+                    }
+                }
+                
+                this.removeMatches(aff);
+                this.board[r1][c1].type = null; this.board[r1][c1].piece.style.transform = 'scale(0)';
+                this.board[r2][c2].type = null; this.board[r2][c2].piece.style.transform = 'scale(0)';
+                
+                setTimeout(() => { 
+                    if (t1 === '🪩' || t2 === '🪩') {
+                        // Activate the transformed powerups
+                        aff.forEach(pos => this.triggerPowerUp(pos.r, pos.c, this.board[pos.r][pos.c].type));
+                    }
+                    this.refill(); 
+                    this.isAnimating = false; 
+                }, 500);
+            }
+
+            checkAndResolveMatches() {
+                const segments = this.findMatches();
+                if (segments.length > 0) {
+                    segments.forEach(seg => this.removeMatches(seg));
+                    setTimeout(() => this.refill(), 400);
+                    return true;
+                }
+                return false;
+            }
+
+            findMatches() {
+                const horizontal = [];
+                const vertical = [];
+                const matchedPos = new Set();
+                
+                // Horizontal
+                for (let r = 0; r < this.rows; r++) {
+                    let len = 1;
+                    for (let c = 0; c < this.cols; c++) {
+                        if (c < this.cols - 1 && this.board[r][c].type && this.board[r][c].type === this.board[r][c+1].type) len++;
+                        else { 
+                            if (len >= 3) { 
+                                const s = []; for (let i = 0; i < len; i++) {
+                                    s.push({r, c: c-i});
+                                    matchedPos.add(`${r},${c-i}`);
+                                } 
+                                horizontal.push(s); 
+                            } 
+                            len = 1; 
+                        }
+                    }
+                }
+                // Vertical
+                for (let c = 0; c < this.cols; c++) {
+                    let len = 1;
+                    for (let r = 0; r < this.rows; r++) {
+                        if (r < this.rows - 1 && this.board[r][c].type && this.board[r][c].type === this.board[r+1][c].type) len++;
+                        else { 
+                            if (len >= 3) { 
+                                const s = []; for (let i = 0; i < len; i++) {
+                                    s.push({r: r-i, c});
+                                    matchedPos.add(`${r-i},${c}`);
+                                }
+                                vertical.push(s); 
+                            } 
+                            len = 1; 
+                        }
+                    }
+                }
+                
+                // Detect T/L shapes: check for intersections
+                const common = [];
+                horizontal.forEach(hSeg => {
+                    vertical.forEach(vSeg => {
+                        const intersection = hSeg.find(h => vSeg.find(v => v.r === h.r && v.c === h.c));
+                        if (intersection) {
+                            // Merge into a T/L shape
+                            const combined = [...new Set([...hSeg, ...vSeg].map(p => `${p.r},${p.c}`))].map(s => {
+                                const [r, c] = s.split(',').map(Number); return {r, c};
+                            });
+                            common.push(combined);
+                        }
+                    });
+                });
+
+                if (common.length > 0) return common; // Prioritize T/L for bombs
+                return [...horizontal, ...vertical];
+            }
+
+            removeMatches(matches) {
+                if (matches.length === 0) return;
+                this.shake(matches.length > 8 ? 10 : 5);
+                if (navigator.vibrate) navigator.vibrate(matches.length > 5 ? [50, 30, 50] : 30);
+                
+                let powerUp = null;
+                if (matches.length === 4) powerUp = '🚀';
+                else if (matches.length === 5) {
+                    // Potential Light Ball if 5 in a row
+                    // Check if it's horizontal or vertical
+                    const isHorizontal = matches.every(m => m.r === matches[0].r);
+                    const isVertical = matches.every(m => m.c === matches[0].c);
+                    if (isHorizontal || isVertical) powerUp = '🪩';
+                    else powerUp = '💣';
+                } else if (matches.length >= 6) powerUp = '🪩';
+
+                matches.forEach((pos, idx) => {
+                    const b = this.board[pos.r][pos.c];
+                    if (!b) return;
+                    
+                    if (idx === 0) this.createFloatingText(pos.r, pos.c, matches.length * 10);
+                    
+                    this.createParticles(pos.r, pos.c);
+                    this.clearIceAt(pos.r, pos.c);
+                    
+                    // Wood boxes break on adjacent matches
+                    [[0,1],[0,-1],[1,0],[-1,0]].forEach(([dr, dc]) => {
+                        const nr = pos.r+dr, nc = pos.c+dc;
+                        if (nr>=0 && nr<this.rows && nc>=0 && nc<this.cols) {
+                            this.clearIceAt(nr, nc);
+                            this.breakObstacleAt(nr, nc);
+                        }
+                    });
+
+                    if (idx === 0 && powerUp) {
+                        b.type = powerUp; b.piece.textContent = powerUp; 
+                        b.piece.classList.add('special'); 
+                        if (powerUp === '🪩') b.piece.classList.add('disco');
+                        b.piece.style.transform = 'scale(1.2)';
+                    } else {
+                        b.type = null; b.piece.style.transform = 'scale(0)';
+                    }
+                });
+                window.dispatchEvent(new CustomEvent('score-increase', { detail: matches.length }));
+            }
+
+            clearIceAt(r, c) {
+                const b = this.board[r][c];
+                if (b.ice > 0) { b.ice = 0; b.element.classList.remove('frozen'); window.dispatchEvent(new CustomEvent('ice-cleared')); }
+            }
+
+            breakObstacleAt(r, c) {
+                const b = this.board[r][c];
+                if (b.obstacle === 'wood') {
+                    b.obstacle = null;
+                    b.element.classList.remove('obstacle-wood');
+                    b.piece.textContent = '';
+                    this.createParticles(r, c);
+                    window.dispatchEvent(new CustomEvent('obstacle-cleared', { detail: 'wood' }));
+                } else if (b.obstacle === 'vase') {
+                    b.hits--;
+                    if (b.hits === 1) {
+                        b.element.classList.add('vase-cracked');
+                    } else if (b.hits <= 0) {
+                        b.obstacle = null;
+                        b.element.classList.remove('obstacle-vase', 'vase-cracked');
+                        b.piece.textContent = '';
+                        this.createParticles(r, c);
+                        window.dispatchEvent(new CustomEvent('obstacle-cleared', { detail: 'vase' }));
+                    }
+                }
+            }
+
+            createParticles(r, c) {
+                const b = this.board[r][c];
+                for (let i = 0; i < 6; i++) {
+                    const d = document.createElement('div');
+                    d.className = 'particle';
+                    d.style.setProperty('--x', `${(Math.random()-0.5)*100}px`);
+                    d.style.setProperty('--y', `${(Math.random()-0.5)*100}px`);
+                    b.element.appendChild(d);
+                    setTimeout(() => d.remove(), 600);
+                }
+            }
+
+            triggerPowerUp(r, c, type, targetColor = null) {
+                this.isAnimating = true;
+                let aff = [];
+                if (type === '🚀') { for (let i=0; i<this.cols; i++) aff.push({r, c: i}); }
+                else if (type === '💣') {
+                    for (let dr=-1; dr<=1; dr++) for (let dc=-1; dc<=1; dc++) {
+                        const nr=r+dr, nc=c+dc; if (nr>=0 && nr<this.rows && nc>=0 && nc<this.cols) aff.push({r: nr, c: nc});
+                    }
+                } else if (type === '🪩') {
+                    const color = targetColor || this.types[Math.floor(Math.random() * this.types.length)];
+                    for (let dr=0; dr<this.rows; dr++) for (let dc=0; dc<this.cols; dc++) {
+                        if (this.board[dr][dc].type === color) aff.push({r: dr, c: dc});
+                    }
+                }
+                this.removeMatches(aff);
+                if (this.board[r][c]) {
+                     this.board[r][c].type = null;
+                     this.board[r][c].piece.style.transform = 'scale(0)';
+                }
+                setTimeout(() => { this.refill(); this.isAnimating = false; }, 500);
+            }
+
+            refill() {
+                for (let c = 0; c < this.cols; c++) {
+                    let empty = 0;
+                    for (let r = this.rows - 1; r >= 0; r--) {
+                        const b = this.board[r][c];
+                        if (b.obstacle) {
+                            // Obstacle blocks the column falling above it
+                            // For simplicity, let's say pieces just fall into any empty slot that isn't an obstacle
+                            // But usually, pieces fall "through" if gap, but here we'll keep it simple:
+                            // If it's an obstacle, we reset the empty count for the slots below? 
+                            // Actually, let's just skip it and let pieces above it fall into slots below it if possible?
+                            // No, in Royal Match boxes block the slot.
+                            empty = 0; 
+                        } else if (b.type === null) {
+                            empty++;
+                        } else if (empty > 0) {
+                            const target = r + empty;
+                            const bT = this.board[target][c];
+                            const bS = this.board[r][c];
+                            bT.type = bS.type; bT.piece.textContent = bS.type; bT.piece.style.transform = 'scale(1)';
+                            if (bS.piece.classList.contains('special')) bT.piece.classList.add('special');
+                            else bT.piece.classList.remove('special');
+                            bS.type = null; bS.piece.style.transform = 'scale(0)'; bS.piece.classList.remove('special');
+                        }
+                    }
+                    // Refill from top
+                    for (let r = 0; r < this.rows; r++) {
+                        const b = this.board[r][c];
+                        if (b.obstacle) continue;
+                        if (b.type === null && !b.specialType) {
+                            b.type = this.types[Math.floor(Math.random() * this.types.length)];
+                            b.piece.textContent = b.type;
+                            b.piece.classList.remove('special');
+                            b.piece.style.transform = 'scale(0)';
+                            // Particle trail for falling
+                            if (Math.abs(b.element.offsetTop - b.element.offsetTop) > 10) this.createParticles(r, c, 2);
+                            setTimeout(() => b.piece.style.transform = 'scale(1)', 100);
+                        }
+                    }
+
+                    // CHECK CROWN COLLECTION (at bottom)
+                    const lastB = this.board[this.rows-1][c];
+                    if (lastB.specialType === 'crown') {
+                        lastB.specialType = null;
+                        lastB.piece.style.transform = 'translateY(100px) scale(0)';
+                        lastB.piece.style.opacity = '0';
+                        window.dispatchEvent(new CustomEvent('crown-collected'));
+                        setTimeout(() => this.refill(), 300);
+                    }
+                }
+                setTimeout(() => { if (this.findMatches().length > 0) this.checkAndResolveMatches(); }, 300);
+            }
+        }
+
+        // --- GAME LOGIC ---
+        class EconomyManager {
+            constructor() {
+                this.coins = parseInt(localStorage.getItem('royalMatch_coins')) || 500;
+                this.winStreak = parseInt(localStorage.getItem('royalMatch_streak')) || 0;
+                this.updateUI();
+            }
+            save() {
+                localStorage.setItem('royalMatch_coins', this.coins);
+                localStorage.setItem('royalMatch_streak', this.winStreak);
+                this.updateUI();
+            }
+            addCoins(amount) {
+                this.coins += amount;
+                this.save();
+            }
+            spendCoins(amount) {
+                if (this.coins >= amount) {
+                    this.coins -= amount;
+                    this.save();
+                    return true;
+                }
+                return false;
+            }
+            addStreak() { this.winStreak++; this.save(); }
+            resetStreak() { this.winStreak = 0; this.save(); }
+            updateUI() {
+                const coinEls = [document.getElementById('coin-count-map'), document.getElementById('coin-count-game')];
+                coinEls.forEach(el => { if (el) el.textContent = this.coins; });
+            }
+        }
+
+        const economyManager = new EconomyManager();
+
+        class LivesManager {
+            constructor() {
+                this.maxLives = 5;
+                this.regenTime = 30 * 60 * 1000; // 30 minutes
+                this.load();
+                this.startRegenTimer();
+            }
+
+            load() {
+                const saved = JSON.parse(localStorage.getItem('royalMatch_lives')) || { count: 5, lastRegen: Date.now() };
+                this.count = saved.count;
+                this.lastRegen = saved.lastRegen;
+                this.checkRegen();
+            }
+
+            save() {
+                localStorage.setItem('royalMatch_lives', JSON.stringify({ count: this.count, lastRegen: this.lastRegen }));
+                this.updateUI();
+            }
+
+            checkRegen() {
+                if (this.count < this.maxLives) {
+                    const elapsed = Date.now() - this.lastRegen;
+                    const gained = Math.floor(elapsed / this.regenTime);
+                    if (gained > 0) {
+                        this.count = Math.min(this.maxLives, this.count + gained);
+                        this.lastRegen = Date.now() - (elapsed % this.regenTime);
+                        this.save();
+                    }
+                } else {
+                    this.lastRegen = Date.now();
+                }
+            }
+
+            startRegenTimer() {
+                setInterval(() => {
+                    this.checkRegen();
+                }, 10000); // Check every 10s
+            }
+
+            useLife() {
+                if (this.count > 0) {
+                    this.count--;
+                    if (this.count === this.maxLives - 1) this.lastRegen = Date.now();
+                    this.save();
+                    return true;
+                }
+                return false;
+            }
+
+            updateUI() {
+                const countEls = document.querySelectorAll('.lives-counter .count');
+                countEls.forEach(el => el.textContent = this.count);
+            }
+        }
+
+        const livesManager = new LivesManager();
+        livesManager.updateUI();
+
+        class SoundManager {
+            constructor() { try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { this.ctx = null; } }
+            play(type) {
+                if (!this.ctx) return;
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+                const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                if (type === 'match') { osc.frequency.setValueAtTime(440, this.ctx.currentTime); gain.gain.setValueAtTime(0.1, this.ctx.currentTime); }
+                else if (type === 'swap') { osc.frequency.setValueAtTime(200, this.ctx.currentTime); gain.gain.setValueAtTime(0.05, this.ctx.currentTime); }
+                else if (type === 'ice') { osc.type = 'square'; osc.frequency.setValueAtTime(1000, this.ctx.currentTime); gain.gain.setValueAtTime(0.03, this.ctx.currentTime); }
+                osc.start(); osc.stop(this.ctx.currentTime + 0.2);
+            }
+        }
+
+        const sfx = new SoundManager();
+        const levels = { 
+            1: { 
+                goal: 10, 
+                goalType: 'ice',
+                moves: 25, 
+                stars: [500, 1000, 2000],
+                layout: [
+                    "........",
+                    ".I....I.",
+                    "..I..I..",
+                    "...II...",
+                    "...II...",
+                    "..I..I..",
+                    ".I....I.",
+                    "........"
+                ]
+            }, 
+            2: { 
+                goal: 8, 
+                goalType: 'wood',
+                moves: 22, 
+                stars: [800, 1500, 2500],
+                layout: [
+                    "W......W",
+                    ".W....W.",
+                    "..W..W..",
+                    "...WW...",
+                    "...WW...",
+                    "..W..W..",
+                    ".W....W.",
+                    "W......W"
+                ]
+            }, 
+            3: { 
+                goal: 3, 
+                goalType: 'crown',
+                moves: 20, 
+                stars: [1000, 2000, 3500],
+                layout: [
+                    "..C..C..",
+                    "........",
+                    "VV....VV",
+                    "........",
+                    "....C...",
+                    "WW....WW",
+                    "........",
+                    "........"
+                ]
+            }, 
+            4: { 
+                goal: 12, 
+                goalType: 'vase',
+                moves: 18, 
+                stars: [1200, 2500, 4500],
+                layout: [
+                    "VVVVVVVV",
+                    "V......V",
+                    "V......V",
+                    "V......V",
+                    "V......V",
+                    "V......V",
+                    "V......V",
+                    "VVVVVVVV"
+                ]
+            }, 
+            5: { 
+                goal: 5, 
+                goalType: 'crown',
+                moves: 20, 
+                stars: [1500, 3000, 6000],
+                layout: [
+                    "C.C.C.C.",
+                    "WWWWWWWW",
+                    "........",
+                    "VVVVVVVV",
+                    "........",
+                    "IIIIIIII",
+                    "........",
+                    "........"
+                ]
+            },
+            6: {
+                goal: 15,
+                goalType: 'ice',
+                moves: 22,
+                stars: [2000, 4000, 8000],
+                layout: [
+                    "I.I.I.I.",
+                    ".W.W.W.W",
+                    "I.I.I.I.",
+                    ".W.W.W.W",
+                    "I.I.I.I.",
+                    ".W.W.W.W",
+                    "I.I.I.I.",
+                    "........"
+                ]
+            },
+            7: {
+                goal: 10,
+                goalType: 'vase',
+                moves: 25,
+                stars: [2500, 5000, 10000],
+                layout: [
+                    "VV....VV",
+                    "V......V",
+                    "........",
+                    "..VVVV..",
+                    "..V..V..",
+                    "........",
+                    "V......V",
+                    "VV....VV"
+                ]
+            },
+            8: {
+                goal: 4,
+                goalType: 'crown',
+                moves: 18,
+                stars: [3000, 6000, 12000],
+                layout: [
+                    "C..C..C.",
+                    "WWWWWWWW",
+                    "VVVVVVVV",
+                    "........",
+                    "....C...",
+                    "WWWWWWWW",
+                    "........",
+                    "........"
+                ]
+            },
+            9: {
+                goal: 20,
+                goalType: 'wood',
+                moves: 20,
+                stars: [3500, 7000, 15000],
+                layout: [
+                    "WWWWWWWW",
+                    "W......W",
+                    "W.IIII.W",
+                    "W.I..I.W",
+                    "W.I..I.W",
+                    "W.IIII.W",
+                    "W......W",
+                    "WWWWWWWW"
+                ]
+            },
+            10: {
+                goal: 6,
+                goalType: 'crown',
+                moves: 25,
+                stars: [5000, 10000, 20000],
+                layout: [
+                    "C.C.C.C.",
+                    "VVVVVVVV",
+                    "V......V",
+                    "V..C.C.V",
+                    "V......V",
+                    "VVVVVVVV",
+                    "WWWWWWWW",
+                    "IIIIIIII"
+                ]
+            }
+        };
+        let totalScore = 0, remainingMoves = 25, currentLevel = 1;
+        let remainingGoal = 5;
+        let maxLevelReached = parseInt(localStorage.getItem('royalMatch_maxLevel')) || 1;
+        let levelStars = JSON.parse(localStorage.getItem('royalMatch_levelStars')) || {};
+        
+        if (isNaN(maxLevelReached)) maxLevelReached = 1;
+        let gameGrid = null;
+
+        const menuScreen = document.getElementById('menu-screen'), mapScreen = document.getElementById('map-screen'), gameScreen = document.getElementById('game-screen');
+        const scoreEl = document.getElementById('score'), movesEl = document.getElementById('moves'), objectiveText = document.getElementById('objective-display-footer');
+        const starFill = document.getElementById('star-fill');
+        const resultModal = document.getElementById('result-modal');
+
+        document.getElementById('play-btn').onclick = () => showScreen('map-screen');
+        document.getElementById('back-to-menu-from-map').onclick = () => showScreen('menu-screen');
+        document.getElementById('back-to-menu').onclick = () => showScreen('map-screen');
+        document.getElementById('modal-btn').onclick = () => closeResultModal();
+
+        document.querySelectorAll('.level-node').forEach(node => {
+            node.onclick = () => { 
+                if (parseInt(node.dataset.level) <= maxLevelReached) { 
+                    if (livesManager.count > 0) {
+                        currentLevel = parseInt(node.dataset.level); 
+                        startGame(); 
+                    } else {
+                        alert("Sem vidas! Aguarde a regeneração.");
+                    }
+                } 
+            };
+        });
+
+        function showScreen(id) {
+            [menuScreen, mapScreen, gameScreen].forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            if (id === 'map-screen') updateMapUI();
+        }
+
+        function updateMapUI() {
+            const mapContainer = document.getElementById('map-container');
+            // Dynamically create nodes for 10 levels if not exist
+            const existingNodes = mapContainer.querySelectorAll('.level-node');
+            if (existingNodes.length < 10) {
+                for (let i = 6; i <= 10; i++) {
+                    const node = document.createElement('div');
+                    node.className = 'level-node locked';
+                    node.dataset.level = i;
+                    node.innerHTML = `<span>${i}</span><div class="level-stars"><span>⭐</span><span>⭐</span><span>⭐</span></div>`;
+                    node.onclick = () => handleLevelClick(i, node);
+                    mapContainer.appendChild(node);
+                }
+            }
+
+            document.querySelectorAll('.level-node').forEach(node => {
+                const lv = parseInt(node.dataset.level);
+                node.className = 'level-node ' + (lv <= maxLevelReached ? 'active' : 'locked');
+                
+                // Update stars on map
+                const starsEarned = levelStars[lv] || 0;
+                const starContainer = node.querySelector('.level-stars');
+                if (starContainer) {
+                    starContainer.querySelectorAll('span').forEach((s, i) => {
+                        s.className = (i < starsEarned) ? 'earned' : '';
+                    });
+                }
+            });
+        }
+
+        function handleLevelClick(lv, node) {
+            if (lv <= maxLevelReached) { 
+                if (livesManager.count > 0) {
+                    currentLevel = lv; 
+                    startGame(); 
+                } else {
+                    alert("Sem vidas! Reabasteça na Loja ou aguarde.");
+                    openStore();
+                }
+            } 
+        }
+
+        document.querySelectorAll('.level-node').forEach(node => {
+            node.onclick = () => handleLevelClick(parseInt(node.dataset.level), node);
+        });
+
+        // --- STORE LOGIC ---
+        const storeModal = document.getElementById('store-modal');
+        const openStore = () => storeModal.classList.add('active');
+        const closeStore = () => storeModal.classList.remove('active');
+        document.getElementById('close-store').onclick = closeStore;
+
+        document.querySelectorAll('.buy-btn').forEach(btn => {
+            btn.onclick = () => {
+                const type = btn.dataset.type;
+                const price = parseInt(btn.dataset.price);
+                if (economyManager.spendCoins(price)) {
+                    if (type === 'hammer') {
+                        let c = parseInt(localStorage.getItem('royalMatch_hammers')) || 3;
+                        localStorage.setItem('royalMatch_hammers', c + 1);
+                    } else if (type === 'moves') {
+                        let c = parseInt(localStorage.getItem('royalMatch_movesBoost')) || 2;
+                        localStorage.setItem('royalMatch_movesBoost', c + 1);
+                    } else if (type === 'life') {
+                        livesManager.count = Math.min(livesManager.maxLives, livesManager.count + 1);
+                        livesManager.save();
+                    }
+                    if (gameGrid) gameGrid.setupBoosters();
+                    alert("Compra realizada com sucesso!");
+                } else {
+                    alert("Moedas insuficientes!");
+                }
+            };
+        });
+
+        // Add a shop button to map header
+        const mapHeader = document.querySelector('.map-header');
+        const shopBtn = document.createElement('button');
+        shopBtn.className = 'btn-icon shop-btn';
+        shopBtn.innerHTML = '🛒';
+        shopBtn.onclick = openStore;
+        mapHeader.insertBefore(shopBtn, mapHeader.firstChild);         
+        function startGame() {
+            const config = levels[currentLevel] || levels[1];
+            totalScore = 0; remainingMoves = config.moves; 
+            remainingGoal = config.goal;
+            if (starFill) starFill.style.width = '0%';
+            document.querySelectorAll('.marker').forEach(m => m.classList.remove('earned'));
+            updateUI(); showScreen('game-screen');
+            if (!gameGrid) gameGrid = new Grid(8, 8, 'grid-container'); else gameGrid.init();
+        }
+
+        function updateUI() {
+            if (scoreEl) scoreEl.textContent = totalScore;
+            if (movesEl) movesEl.textContent = remainingMoves;
+            
+            const config = levels[currentLevel] || levels[1];
+            let gText = "";
+            if (config.goalType === 'ice') gText = `Limpe ${remainingGoal} Gelo(s)`;
+            else if (config.goalType === 'wood') gText = `Quebre ${remainingGoal} Madeira(s)`;
+            else if (config.goalType === 'vase') gText = `Destrua ${remainingGoal} Vaso(s)`;
+            else if (config.goalType === 'crown') gText = `Colete ${remainingGoal} Coroa(s)`;
+            
+            if (objectiveText) objectiveText.textContent = `Nível ${currentLevel}: ${gText}`;
+            
+            // Update star progress bar
+            const maxStarScore = config.stars[2];
+            const percent = Math.min(100, (totalScore / maxStarScore) * 100);
+            if (starFill) starFill.style.width = percent + '%';
+            
+            // Highlight earned markers
+            document.querySelectorAll('.marker').forEach((m, i) => {
+                if (totalScore >= config.stars[i]) m.classList.add('earned');
+                else m.classList.remove('earned');
+            });
+        }
+
+        window.addEventListener('score-increase', (e) => { totalScore += e.detail * 10; sfx.play('match'); updateUI(); });
+        window.addEventListener('match-found', () => { remainingMoves--; sfx.play('swap'); updateUI(); if (remainingMoves <= 0 && remainingGoal > 0) checkGameOver(false); });
+        
+        window.addEventListener('ice-cleared', () => { 
+            const config = levels[currentLevel] || levels[1];
+            if (config.goalType === 'ice') {
+                remainingGoal--; sfx.play('ice'); updateUI(); if (remainingGoal <= 0) checkGameOver(true); 
+            }
+        });
+
+        window.addEventListener('obstacle-cleared', (e) => {
+            const config = levels[currentLevel] || levels[1];
+            if (config.goalType === e.detail) {
+                remainingGoal--; sfx.play('ice'); updateUI(); if (remainingGoal <= 0) checkGameOver(true);
+            }
+        });
+
+        window.addEventListener('crown-collected', () => {
+             const config = levels[currentLevel] || levels[1];
+             if (config.goalType === 'crown') {
+                 remainingGoal--; sfx.play('match'); updateUI(); if (remainingGoal <= 0) checkGameOver(true);
+             }
+        });
+
+        function checkGameOver(win) {
+            const config = levels[currentLevel] || levels[1];
+            let starsEarned = 0;
+            if (win) {
+                config.stars.forEach(threshold => { if (totalScore >= threshold) starsEarned++; });
+                if (starsEarned === 0) starsEarned = 1; 
+            }
+
+            // Update modal UI
+            document.getElementById('modal-title').textContent = win ? 'VITÓRIA!' : 'FIM DE JOGO';
+            document.getElementById('modal-score').textContent = totalScore;
+            document.getElementById('modal-level').textContent = currentLevel;
+            
+            const starContainer = document.getElementById('modal-stars');
+            starContainer.querySelectorAll('span').forEach((s, i) => {
+                s.className = (i < starsEarned) ? 'earned' : '';
+            });
+
+            if (win) {
+                if (currentLevel === maxLevelReached && currentLevel < 10) {
+                    maxLevelReached++;
+                    localStorage.setItem('royalMatch_maxLevel', maxLevelReached);
+                    economyManager.addCoins(100); // Reward for new level
+                }
+                economyManager.addStreak();
+                if (!levelStars[currentLevel] || starsEarned > levelStars[currentLevel]) {
+                    levelStars[currentLevel] = starsEarned;
+                    localStorage.setItem('royalMatch_levelStars', JSON.stringify(levelStars));
+                }
+            } else {
+                livesManager.useLife();
+                economyManager.resetStreak();
+            }
+            
+            resultModal.classList.add('active');
+        }
+
+        function closeResultModal() {
+            resultModal.classList.remove('active');
+            showScreen('map-screen');
+        }
+
+        // Register PWA Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW failed', err));
+            });
+        }
+
+        console.log('Game loaded.');
+    </script>
+</body>
+</html>
