@@ -192,6 +192,19 @@
                 this.isHammerMode = false;
                 this.touchStartX = 0;
                 this.touchStartY = 0;
+                this.cascadeCount = 0;
+                this.hintPieces = [];
+                
+                this.init();
+            }
+
+            init() {
+                this.log('Initializing Grid...');
+                this.cascadeCount = 0;
+                this.resetHintTimer();
+                this.cascadeCount = 0;
+                this.resetHintTimer();
+                this.touchStartY = 0;
                 
                 if (!this.container) return;
                 
@@ -222,8 +235,6 @@
                     }
                 };
                 
-                this.init();
-                this.resetHintTimer();
                 this.setupBoosters();
                 
                 // --- KING'S GIFT (STREAK REWARDS) ---
@@ -254,6 +265,152 @@
                         this.log(`King's Gift: ${gifts.join(', ')} added!`);
                     }, 800);
                 }
+            }
+
+            resetHintTimer() {
+                if (this.hintTimeout) clearTimeout(this.hintTimeout);
+                this.hintTimeout = setTimeout(() => this.showHint(), 5000);
+            }
+
+            showHint() {
+                if (this.isAnimating) return;
+                const match = this.findAvailableMatch();
+                if (match) {
+                    const {r1, c1, r2, c2} = match;
+                    this.board[r1][c1].piece.classList.add('hint');
+                    this.board[r2][c2].piece.classList.add('hint');
+                    setTimeout(() => {
+                        if (this.board[r1][c1]) this.board[r1][c1].piece.classList.remove('hint');
+                        if (this.board[r2][c2]) this.board[r2][c2].piece.classList.remove('hint');
+                    }, 2000);
+                } else {
+                    this.shuffleBoard();
+                }
+                this.resetHintTimer();
+            }
+
+            findAvailableMatch() {
+                // Check every possible swap
+                for (let r = 0; r < this.rows; r++) {
+                    for (let c = 0; c < this.cols; c++) {
+                        // Swap right
+                        if (c < this.cols - 1) {
+                            if (this.canSwapAndMatch(r, c, r, c + 1)) return { r1: r, c1: c, r2: r, c2: c + 1 };
+                        }
+                        // Swap down
+                        if (r < this.rows - 1) {
+                            if (this.canSwapAndMatch(r, c, r + 1, c)) return { r1: r, c1: c, r2: r + 1, c2: c };
+                        }
+                    }
+                }
+                return null;
+            }
+
+            canSwapAndMatch(r1, c1, r2, c2) {
+                const b1 = this.board[r1][c1], b2 = this.board[r2][c2];
+                if (b1.obstacle || b2.obstacle || b1.specialType === 'crown' || b2.specialType === 'crown') return false;
+                
+                // Temp swap
+                const t1 = b1.type, t2 = b2.type;
+                b1.type = t2; b2.type = t1;
+                
+                const hasMatch = this.checkAt(r1, c1).length >= 3 || this.checkAt(r2, c2).length >= 3;
+                
+                // Swap back
+                b1.type = t1; b2.type = t2;
+                return hasMatch;
+            }
+
+            shuffleBoard() {
+                this.log('SHUFFLING BOARD...');
+                this.isAnimating = true;
+                this.shake(15, 800);
+                
+                const pieces = [];
+                for (let r = 0; r < this.rows; r++) {
+                    for (let c = 0; c < this.cols; c++) {
+                        if (!this.board[r][c].obstacle && this.board[r][c].type) {
+                            pieces.push(this.board[r][c].type);
+                        }
+                    }
+                }
+
+                // Fisher-Yates shuffle
+                for (let i = pieces.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [pieces[i], pieces[j]] = [pieces[j], pieces[i]];
+                }
+
+                let idx = 0;
+                for (let r = 0; r < this.rows; r++) {
+                    for (let c = 0; c < this.cols; c++) {
+                        if (!this.board[r][c].obstacle && this.board[r][c].type) {
+                            this.board[r][c].type = pieces[idx++];
+                            this.board[r][c].piece.textContent = this.board[r][c].type;
+                        }
+                    }
+                }
+
+                setTimeout(() => {
+                    this.isAnimating = false;
+                    if (!this.findAvailableMatch()) this.shuffleBoard(); // Ensure a match exists
+                }, 1000);
+            }
+
+            clearHint() {
+                this.hintPieces.forEach(p => p.classList.remove('hint'));
+                this.hintPieces = [];
+            }
+
+            canSwapAndMatch(r1, c1, r2, c2) {
+                const b1 = this.board[r1][c1], b2 = this.board[r2][c2];
+                if (b1.obstacle || b2.obstacle) return false;
+                
+                // Temporary swap
+                const t1 = b1.type, t2 = b2.type;
+                b1.type = t2; b2.type = t1;
+                
+                const hasMatch = this.checkAt(r1, c1).length >= 3 || this.checkAt(r2, c2).length >= 3;
+                
+                // Swap back
+                b1.type = t1; b2.type = t2;
+                return hasMatch;
+            }
+
+            shuffleBoard() {
+                this.log('NO MATCHES! Shuffling...');
+                this.isAnimating = true;
+                this.shake(20, 1000);
+                
+                // Get all non-obstacle pieces
+                const pieces = [];
+                for (let r = 0; r < this.rows; r++) {
+                    for (let c = 0; c < this.cols; c++) {
+                        if (!this.board[r][c].obstacle) pieces.push(this.board[r][c].type);
+                    }
+                }
+                
+                // Shuffle array
+                for (let i = pieces.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [pieces[i], pieces[j]] = [pieces[j], pieces[i]];
+                }
+                
+                // Reassign
+                let idx = 0;
+                for (let r = 0; r < this.rows; r++) {
+                    for (let c = 0; c < this.cols; c++) {
+                        if (!this.board[r][c].obstacle) {
+                            this.board[r][c].type = pieces[idx++];
+                            this.board[r][c].piece.textContent = this.board[r][c].type;
+                        }
+                    }
+                }
+                
+                setTimeout(() => {
+                    this.isAnimating = false;
+                    if (!this.findAvailableMatch()) this.shuffleBoard(); // Recursive if still no matches
+                }, 1000);
             }
 
             handleSwipe(x1, y1, x2, y2, target) {
@@ -353,26 +510,9 @@
                 setTimeout(() => ft.remove(), 1000);
             }
 
-            resetHintTimer() {
-                clearTimeout(this.hintTimeout);
-                this.hintTimeout = setTimeout(() => this.showHint(), 5000);
-            }
-
             clearHint() {
                 this.hintPieces.forEach(p => p.classList.remove('hint-piece'));
                 this.hintPieces = [];
-            }
-
-            showHint() {
-                if (this.isAnimating) return;
-                const move = this.findPossibleMove();
-                if (move) {
-                    const b1 = this.board[move.r1][move.c1];
-                    const b2 = this.board[move.r2][move.c2];
-                    b1.piece.classList.add('hint-piece');
-                    b2.piece.classList.add('hint-piece');
-                    this.hintPieces = [b1.piece, b2.piece];
-                }
             }
 
             findPossibleMove() {
@@ -413,6 +553,8 @@
 
             init() {
                 this.log('Initializing Grid...');
+                this.cascadeCount = 0;
+                this.resetHintTimer();
                 const config = levels[currentLevel] || levels[1];
                 const layout = config.layout || [];
                 
@@ -484,14 +626,18 @@
 
             handleCellClick(r, c) {
                 if (this.isAnimating) return;
-                this.log(`Click: ${r},${c}`);
-                const cell = this.board[r][c];
+                this.resetHintTimer();
+                const b = this.board[r][c];
+                if (b.obstacle || b.specialType === 'crown') return; // Prevent selecting obstacles or unmatchable collectibles
+                
+                if (b.type === '🚀' || b.type === '💣' || b.type === '🪩') {
+                    this.triggerPowerUp(r, c, b.type);
+                    return;
+                }
                 
                 if (!this.selectedCell) {
-                    // Direct trigger if clicking a lone power-up (optional, kept for responsiveness)
-                    // But in Royal Match, you usually swap or double-tap.
                     this.selectedCell = { r, c };
-                    cell.element.classList.add('selected');
+                    b.element.classList.add('selected');
                 } else {
                     const r1 = this.selectedCell.r;
                     const c1 = this.selectedCell.c;
@@ -503,8 +649,8 @@
                     if ((dr === 1 && dc === 0) || (dr === 0 && dc === 1)) {
                         this.swap(r1, c1, r, c);
                     } else if (r1 === r && c1 === c) {
-                        // Double click on powerup
-                        if (cell.type === '🚀' || cell.type === '💣') this.triggerPowerUp(r, c, cell.type);
+                        // Double click on powerup (already handled above, but keeping this for general double-click logic if needed)
+                        // if (b.type === '🚀' || b.type === '💣') this.triggerPowerUp(r, c, b.type);
                     }
                     this.selectedCell = null;
                 }
@@ -542,6 +688,7 @@
                     const matchesFound = this.checkAndResolveMatches();
                     if (!matchesFound && !isP1 && !isP2) {
                         this.log('Reverting swap');
+                        if (navigator.vibrate) navigator.vibrate([100, 50, 100]); // Vibration on error/revert
                         const t2 = b1.piece.textContent;
                         b1.piece.textContent = b2.piece.textContent;
                         b2.piece.textContent = t2;
@@ -556,8 +703,9 @@
                             else if (isP2) this.triggerPowerUp(r1, c1, b1.type);
                         } else {
                             this.log('Match confirmed');
+                            this.cascadeCount = 0;
                             window.dispatchEvent(new CustomEvent('match-found'));
-                            this.isAnimating = false;
+                            // this.isAnimating = false; // Handled by refill call chain
                         }
                     }
                 }, 400);
@@ -610,7 +758,7 @@
                         aff.forEach(pos => this.triggerPowerUp(pos.r, pos.c, this.board[pos.r][pos.c].type));
                     }
                     this.refill(); 
-                    this.isAnimating = false; 
+                    // this.isAnimating = false; // Moved to end of refill
                 }, 500);
             }
 
@@ -703,7 +851,8 @@
                     const b = this.board[pos.r][pos.c];
                     if (!b) return;
                     
-                    if (idx === 0) this.createFloatingText(pos.r, pos.c, matches.length * 10);
+                    const scoreVal = matches.length * 10 * (this.cascadeCount + 1);
+                    if (idx === 0) this.createFloatingText(pos.r, pos.c, scoreVal);
                     
                     this.createParticles(pos.r, pos.c);
                     this.clearIceAt(pos.r, pos.c);
@@ -1245,7 +1394,14 @@
 
         function updateUI() {
             if (scoreEl) scoreEl.textContent = totalScore;
-            if (movesEl) movesEl.textContent = remainingMoves;
+            if (movesEl) {
+                movesEl.textContent = remainingMoves;
+                if (remainingMoves <= 5) {
+                    movesEl.classList.add('critical-alert');
+                } else {
+                    movesEl.classList.remove('critical-alert');
+                }
+            }
             
             const config = levels[currentLevel] || levels[1];
             let gText = "";
@@ -1268,7 +1424,11 @@
             });
         }
 
-        window.addEventListener('score-increase', (e) => { totalScore += e.detail * 10; sfx.play('match'); updateUI(); });
+        window.addEventListener('score-increase', (e) => { 
+            totalScore += e.detail * 10; 
+            sfx.play('match'); // Sound on success/match
+            updateUI(); 
+        });
         window.addEventListener('match-found', () => { remainingMoves--; sfx.play('swap'); updateUI(); if (remainingMoves <= 0 && remainingGoal > 0) checkGameOver(false); });
         
         window.addEventListener('ice-cleared', () => { 
