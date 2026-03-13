@@ -139,6 +139,23 @@
             </div>
         </section>
 
+        <!-- Leaderboard Screen -->
+        <section id="leaderboard-screen" class="screen">
+            <header class="map-header">
+                <button id="back-from-lb" class="btn-icon">⬅️</button>
+                <h2 class="title">RANKING GLOBAL</h2>
+                <div class="user-info"></div>
+            </header>
+            <div class="leaderboard-container">
+                <div class="leaderboard-list" id="lb-list">
+                    <!-- Top players will be injected here -->
+                </div>
+            </div>
+            <div class="sync-footer">
+                <button id="sync-btn" class="buy-btn">SINCRONIZAR NA NUVEM ☁️</button>
+            </div>
+        </section>
+
         <!-- Store Modal -->
         <div id="store-modal" class="modal-overlay">
             <div class="modal-content">
@@ -1025,6 +1042,31 @@
             }
         }
 
+        class CloudManager {
+            constructor() {
+                this.isSyncing = false;
+            }
+            async sync() {
+                if (this.isSyncing) return;
+                this.isSyncing = true;
+                const btn = document.getElementById('sync-btn');
+                if (btn) {
+                    const originalText = btn.textContent;
+                    btn.textContent = "SINCRONIZANDO... ⏳";
+                    btn.disabled = true;
+                    // Simulate API call
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    btn.textContent = "SINCRONIZADO! ✅";
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.disabled = false;
+                        this.isSyncing = false;
+                    }, 2000);
+                }
+            }
+        }
+        const cloudManager = new CloudManager();
+
         const economyManager = new EconomyManager();
 
         class LivesManager {
@@ -1351,6 +1393,27 @@
         const openStore = () => storeModal.classList.add('active');
         const closeStore = () => storeModal.classList.remove('active');
         document.getElementById('close-store').onclick = closeStore;
+        document.getElementById('back-from-lb').onclick = () => showScreen('map-screen');
+        document.getElementById('sync-btn').onclick = () => cloudManager.sync();
+
+        function updateLeaderboardUI() {
+            const list = document.getElementById('lb-list');
+            const players = [
+                { name: "Rei Genis (Você)", score: totalScore + 5000, me: true },
+                { name: "Dama da Floresta", score: 4500 },
+                { name: "Cavaleiro do Gelo", score: 3800 },
+                { name: "Mestre das Bombas", score: 3200 },
+                { name: "Explorador Real", score: 2800 },
+                { name: "Duque do Match", score: 2100 }
+            ];
+            list.innerHTML = players.map((p, i) => `
+                <div class="lb-item ${p.me ? 'me' : ''}">
+                    <span class="lb-rank">${i+1}</span>
+                    <span class="lb-name">${p.name}</span>
+                    <span class="lb-score">${p.score}</span>
+                </div>
+            `).join('');
+        }
 
         document.querySelectorAll('.buy-btn').forEach(btn => {
             btn.onclick = () => {
@@ -1375,13 +1438,20 @@
             };
         });
 
-        // Add a shop button to map header
+        // Add shop and ranking buttons to map header
         const mapHeader = document.querySelector('.map-header');
         const shopBtn = document.createElement('button');
         shopBtn.className = 'btn-icon shop-btn';
         shopBtn.innerHTML = '🛒';
         shopBtn.onclick = openStore;
-        mapHeader.insertBefore(shopBtn, mapHeader.firstChild);         
+        
+        const rankBtn = document.createElement('button');
+        rankBtn.className = 'btn-icon rank-btn';
+        rankBtn.innerHTML = '🏆';
+        rankBtn.onclick = () => { updateLeaderboardUI(); showScreen('leaderboard-screen'); };
+        
+        mapHeader.insertBefore(shopBtn, mapHeader.firstChild);
+        mapHeader.insertBefore(rankBtn, mapHeader.firstChild);
         function startGame() {
             const config = levels[currentLevel] || levels[1];
             totalScore = 0; remainingMoves = config.moves; 

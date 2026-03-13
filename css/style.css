@@ -28,6 +28,53 @@ body {
     -webkit-user-select: none;
 }
 
+.rank-btn {
+    font-size: 1.5rem;
+    background: linear-gradient(135deg, #FFD700, #FFA000);
+    border-radius: 50%;
+    width: 45px; height: 45px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    margin-right: 10px;
+}
+
+/* --- Leaderboard --- */
+.leaderboard-container {
+    padding: 20px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.leaderboard-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.lb-item {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 12px 20px;
+    border-radius: 12px;
+    border-left: 5px solid transparent;
+}
+
+.lb-item.me { border-left-color: #FFD700; background: rgba(255, 215, 0, 0.1); }
+.lb-rank { font-weight: bold; width: 30px; font-size: 1.2rem; }
+.lb-name { flex: 1; font-weight: 500; }
+.lb-score { font-weight: bold; color: #FFD700; }
+
+.sync-footer {
+    padding: 20px;
+    text-align: center;
+}
+
+#sync-btn {
+    width: 100%;
+    padding: 15px;
+    font-size: 1rem;
+}
+
 #app {
     width: 100%;
     max-width: 500px; /* Slightly wider for modern phones */
