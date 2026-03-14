@@ -207,7 +207,7 @@ body {
     justify-content: center;
     align-items: center;
     text-align: center;
-    background: url('https://images.unsplash.com/photo-1599427303058-f06cbdf4bb91?q=80&w=1000') no-repeat center center/cover;
+    background: url('../assets/castle_path.png') no-repeat center bottom/cover !important;
 }
 
 .royal-overlay {
@@ -306,8 +306,18 @@ body {
 
 /* --- Map Screen --- */
 #map-screen {
-    background: linear-gradient(to bottom, #1e3c72 0%, #2a5298 100%);
+    background: url('../assets/castle_path.png') no-repeat center bottom/cover !important;
     padding: 0;
+    position: relative;
+}
+
+#map-screen::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(to bottom, rgba(26, 0, 51, 0.4), transparent 20%, transparent 80%, rgba(26, 0, 51, 0.6));
+    z-index: 1;
+    pointer-events: none;
 }
 
 .map-header {
@@ -316,6 +326,8 @@ body {
     padding: 20px;
     text-align: center;
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    position: relative;
+    z-index: 10;
 }
 
 .map-title-text {
@@ -326,12 +338,13 @@ body {
 .map-scroll {
     flex-grow: 1;
     overflow-y: auto;
-    padding: 40px 20px;
+    padding: 60px 20px;
     position: relative;
     display: flex;
     flex-direction: column-reverse; /* Levels grow upwards */
-    gap: 60px;
+    gap: 80px;
     scrollbar-width: none;
+    z-index: 2;
 }
 
 .map-scroll::-webkit-scrollbar { display: none; }
@@ -341,9 +354,10 @@ body {
     top: 0;
     left: 50%;
     transform: translateX(-50%);
-    width: 8px;
+    width: 12px;
     height: 100%;
-    background: rgba(255, 215, 0, 0.2);
+    background: rgba(255, 215, 0, 0.15);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.1);
     z-index: 1;
 }
 
